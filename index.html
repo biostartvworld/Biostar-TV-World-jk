@@ -5,20 +5,33 @@
 <title>channels.json</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh}
-pre{background:#222;padding:20px;border-radius:8px;overflow:auto;max-width:90%;max-height:90%;white-space:pre-wrap;word-break:break-word}
+body{margin:0;font-family:Arial,sans-serif;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh}
+pre{background:#222;padding:20px;border-radius:8px;overflow:auto;max-width:90%;max-height:60%;white-space:pre-wrap;word-break:break-word;margin-bottom:20px}
+a{color:#0a84ff;text-decoration:none;font-size:16px}
+a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-
 <pre id="jsonOutput">Loading...</pre>
-
+<a id="jsonLink" href="#" target="_blank">View JSON Link</a>
 <script>
 const urls=[
 "https://raw.githubusercontent.com/munim-sah75/Cofs_TV/refs/heads/main/fancode.m3u",
 "https://raw.githubusercontent.com/biostartvworld/playlist/refs/heads/main/playlist.m3u",
 "https://raw.githubusercontent.com/sm-monirulislam/RoarZone-Auto-Update-playlist/refs/heads/main/RoarZone.m3u"
 ]
+
+fetch('/channels.json')
+  .then(r=>{
+    if(!r.ok) throw new Error("Network response was not ok")
+    return r.json()
+  })
+  .then(data=>{
+    document.getElementById("jsonOutput").textContent = JSON.stringify(data,null,2)
+  })
+  .catch(()=>{
+    document.getElementById("jsonOutput").textContent="Failed to load JSON"
+  })
 
 let channels=[]
 
@@ -41,6 +54,10 @@ function parseM3U(t){
 
 function renderJSON(){
   document.getElementById("jsonOutput").textContent=JSON.stringify(channels,null,2)
+  const blob = new Blob([JSON.stringify(channels,null,2)], {type:"application/json"})
+  const url = URL.createObjectURL(blob)
+  document.getElementById("jsonLink").href = url
+  document.getElementById("jsonLink").textContent = "channels.json link"
 }
 
 Promise.all(urls.map(u=>fetch(u).then(r=>r.text()).catch(()=>null))).then(r=>{
@@ -48,6 +65,5 @@ Promise.all(urls.map(u=>fetch(u).then(r=>r.text()).catch(()=>null))).then(r=>{
   renderJSON()
 })
 </script>
-
 </body>
 </html>
